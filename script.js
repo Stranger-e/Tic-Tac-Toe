@@ -34,7 +34,17 @@ const createGameboard = (() => {
     return false;
   };
 
-  return { displayGameboard, resetGameboard };
+  const isBoardFull = () => {
+    return !gameboard.includes('');
+  };
+
+  return {
+    displayGameboard,
+    resetGameboard,
+    checkWinner,
+    isBoardFull,
+    gameboard,
+  };
 })();
 
 const Player = (name, symbol) => {
@@ -59,7 +69,7 @@ const gameFlow = (() => {
   };
 
   const getPlayerSymbol = () => {
-    return Players[currentPlayerIndex].symbol;
+    return players[currentPlayerIndex].symbol;
   };
 
   // const startGame = () => {
@@ -77,11 +87,8 @@ const gameFlow = (() => {
       switchPlayer();
       createGameboard.displayGameboard();
 
-      if (createGameboard.checkWinner('X')) {
-        console.log('player X wins');
-        createGameboard.resetGameboard();
-      } else if (createGameboard.checkWinner('O')) {
-        console.log('player O wins');
+      if (createGameboard.checkWinner(getPlayerSymbol())) {
+        console.log(`Player ${getPlayerSymbol()} wins`);
         createGameboard.resetGameboard();
       } else if (createGameboard.isBoardFull()) {
         console.log('It is a tie');
@@ -94,3 +101,26 @@ const gameFlow = (() => {
 
   return { addPlayer, makeMove };
 })();
+
+const displayController = {
+  renderGameboard: function (gameboardArray, conatinerId) {
+    const container = document.getElementById(conatinerId);
+    container.innerHTML = '';
+
+    gameboardArray.forEach((cellValue, index) => {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.textContent = cellValue;
+      container.appendChild(cell);
+
+      cell.addEventListener('click', () => {
+        gameFlow.makeMove(index);
+        this.renderGameboard(gameboardArray, conatinerId);
+      });
+    });
+  },
+};
+
+const gameboardArray = ['X', '', 'O', '', 'X', '', '', 'O', ''];
+const containerId = 'gameboardContainer';
+displayController.renderGameboard(gameboardArray, containerId);
