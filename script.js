@@ -51,10 +51,27 @@ const Player = (name, symbol) => {
   return { name, symbol };
 };
 
-let player1 = Player('Oloo', 'O');
-let player2 = Player('Max', 'X');
-console.log(player1);
-console.log(player2);
+let player1;
+let player2;
+
+const startGame = () => {
+  const player1Name = document.getElementById('player1').value;
+  const player2Name = document.getElementById('player2').value;
+
+  player1 = Player(player1Name || 'Player 1', 'O');
+  player2 = Player(player2Name || 'Player 2', 'X');
+
+  gameFlow.addPlayer(player1);
+  gameFlow.addPlayer(player2);
+
+  resetGame();
+};
+
+const resetGame = () => {
+  createGameboard.resetGameboard();
+  displayController.renderGameboard(createGameboard.gameboard);
+  document.getElementById('results').innerText = '';
+};
 
 const gameFlow = (() => {
   const players = [];
@@ -66,16 +83,17 @@ const gameFlow = (() => {
 
   const addPlayer = (player) => {
     players.push(player);
+    console.log('Player added:', player);
+    console.log('Players:', players);
   };
 
   const getPlayerSymbol = () => {
-    return players[currentPlayerIndex].symbol;
+    console.log('Current player index:', currentPlayerIndex);
+    console.log('Players length:', players.length);
+    return players[currentPlayerIndex]
+      ? players[currentPlayerIndex].symbol
+      : '';
   };
-
-  // const startGame = () => {
-  //   createGameboard.resetGameboard();
-  //   createGameboard.displayGameboard();
-  //  };
 
   const makeMove = (position) => {
     if (
@@ -86,12 +104,16 @@ const gameFlow = (() => {
       createGameboard.gameboard[position] = getPlayerSymbol();
       switchPlayer();
       createGameboard.displayGameboard();
+      gameboardArray = [...createGameboard.gameboard];
+      displayController.renderGameboard(gameboardArray, containerId);
 
       if (createGameboard.checkWinner(getPlayerSymbol())) {
-        console.log(`Player ${getPlayerSymbol()} wins`);
+        document.getElementById(
+          'results'
+        ).innerText = `Player ${getPlayerSymbol()} wins`;
         createGameboard.resetGameboard();
       } else if (createGameboard.isBoardFull()) {
-        console.log('It is a tie');
+        document.getElementById('results').innerText = 'It is a tie';
         createGameboard.resetGameboard();
       }
     } else {
@@ -103,8 +125,8 @@ const gameFlow = (() => {
 })();
 
 const displayController = {
-  renderGameboard: function (gameboardArray, conatinerId) {
-    const container = document.getElementById(conatinerId);
+  renderGameboard: function (conatinerId) {
+    const container = document.getElementById(containerId);
     container.innerHTML = '';
 
     gameboardArray.forEach((cellValue, index) => {
@@ -114,13 +136,17 @@ const displayController = {
       container.appendChild(cell);
 
       cell.addEventListener('click', () => {
-        gameFlow.makeMove(index);
-        this.renderGameboard(gameboardArray, conatinerId);
+        if (gameboardArray[index] === '') {
+          gameFlow.makeMove(index);
+        } else {
+          console.log('cell already occupied');
+        }
       });
     });
   },
 };
 
-const gameboardArray = ['X', '', 'O', '', 'X', '', '', 'O', ''];
+let gameboardArray = ['', '', '', '', '', '', '', '', ''];
 const containerId = 'gameboardContainer';
+
 displayController.renderGameboard(gameboardArray, containerId);
