@@ -1,24 +1,45 @@
 const createGameboard = (() => {
-    let gameboard = ['','','','','','','','',''];
+  let gameboard = ['', '', '', '', '', '', '', '', ''];
 
-    const displayGameboard = () => {
-        console.log('New Board');
-        for (let i = 0; i < 9; i += 3) {
-            console.log(gameboard.slice(i, i + 3).join(' | '));
-            if (i < 6) console.log('---------');
-        }
-    };
+  const displayGameboard = () => {
+    console.log('New Board');
+    for (let i = 0; i < 9; i += 3) {
+      console.log(gameboard.slice(i, i + 3).join(' | '));
+      if (i < 6) console.log('---------');
+    }
+  };
 
-    const resetGameboard = () => {
-        gameboard = ['','','','','','','','',''];
-    };
+  const resetGameboard = () => {
+    gameboard = ['', '', '', '', '', '', '', '', ''];
+  };
 
-    return {displayGameboard, resetGameboard};
+  const checkWinner = (symbol) => {
+    const winningCombos = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (let combo of winningCombos) {
+      if (combo.every((index) => gameboard[index] === symbol)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  return { displayGameboard, resetGameboard };
 })();
 
 const Player = (name, symbol) => {
-    return{name, symbol};
-}
+  return { name, symbol };
+};
 
 let player1 = Player('Oloo', 'O');
 let player2 = Player('Max', 'X');
@@ -26,21 +47,50 @@ console.log(player1);
 console.log(player2);
 
 const gameFlow = (() => {
-    const players = [];
-    let currentPlayerIndex = 0;
+  const players = [];
+  let currentPlayerIndex = 0;
 
-    const switchPlayer = () => {
-        currentPlayerIndex = (currentPlayerIndex === 0) ? 1 : 0;
-    };
+  const switchPlayer = () => {
+    currentPlayerIndex = currentPlayerIndex === 0 ? 1 : 0;
+  };
 
-    const addPlayer = (player) => {
-        players.push(player);
-    };
+  const addPlayer = (player) => {
+    players.push(player);
+  };
 
-    const startGame = () => {
+  const getPlayerSymbol = () => {
+    return Players[currentPlayerIndex].symbol;
+  };
+
+  // const startGame = () => {
+  //   createGameboard.resetGameboard();
+  //   createGameboard.displayGameboard();
+  //  };
+
+  const makeMove = (position) => {
+    if (
+      position >= 0 &&
+      position < 9 &&
+      createGameboard.gameboard[position] === ''
+    ) {
+      createGameboard.gameboard[position] = getPlayerSymbol();
+      switchPlayer();
+      createGameboard.displayGameboard();
+
+      if (createGameboard.checkWinner('X')) {
+        console.log('player X wins');
         createGameboard.resetGameboard();
-        createGameboard.displayGameboard();
+      } else if (createGameboard.checkWinner('O')) {
+        console.log('player O wins');
+        createGameboard.resetGameboard();
+      } else if (createGameboard.isBoardFull()) {
+        console.log('It is a tie');
+        createGameboard.resetGameboard();
+      }
+    } else {
+      console.log('Invalid move');
     }
+  };
 
-    return {addPlayer, startGame};
-});
+  return { addPlayer, makeMove };
+})();
