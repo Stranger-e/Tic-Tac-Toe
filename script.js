@@ -79,13 +79,7 @@ const startGame = () => {
 
   gameStarted = true;
 
-  resetGame();
-};
-
-const resetGame = () => {
-  createGameboard.resetGameboard();
-  displayController.renderGameboard(createGameboard.gameboard);
-  document.getElementById('results').innerText = '';
+  resetGameboard();
 };
 
 const gameFlow = (() => {
@@ -163,6 +157,17 @@ const displayController = {
       });
     });
   },
+};
+
+const resetGameboard = () => {
+  createGameboard.resetGameboard();
+  const gameboardCells = document.querySelectorAll('.cell');
+  gameboardCells.forEach((cell) => {
+    cell.textContent = '';
+  });
+
+  document.getElementById('player1').value = '';
+  document.getElementById('player2').value = '';
 };
 
 const containerId = 'gameboardContainer';
