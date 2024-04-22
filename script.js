@@ -1,10 +1,10 @@
+let gameStarted = false;
+
 const createGameboard = (() => {
   let gameboard = ['', '', '', '', '', '', '', '', ''];
 
   const displayGameboard = () => {
-    console.log('New Board');
     for (let i = 0; i < 9; i += 3) {
-      console.log(gameboard.slice(i, i + 3).join(' | '));
       if (i < 6) console.log('---------');
     }
   };
@@ -25,12 +25,25 @@ const createGameboard = (() => {
       [2, 4, 6],
     ];
 
+    const symbols = createGameboard.gameboard;
+
     for (let combo of winningCombos) {
-      if (combo.every((index) => gameboard[index] === symbol)) {
+      const [a, b, c] = combo;
+
+      console.log('Combo: ', combo);
+      console.log('Symbols: ', symbols);
+
+      console.log('Comparing: ', symbols[a], symbols[b], symbols[c]);
+      if (
+        symbols[a] === symbol &&
+        symbols[b] === symbol &&
+        symbols[c] === symbol
+      ) {
+        console.log('Is winner true');
         return true;
       }
     }
-
+    console.log('Is winner false');
     return false;
   };
 
@@ -64,6 +77,8 @@ const startGame = () => {
   gameFlow.addPlayer(player1);
   gameFlow.addPlayer(player2);
 
+  gameStarted = true;
+
   resetGame();
 };
 
@@ -88,32 +103,36 @@ const gameFlow = (() => {
   };
 
   const getPlayerSymbol = () => {
-    console.log('Current player index:', currentPlayerIndex);
-    console.log('Players length:', players.length);
     return players[currentPlayerIndex]
       ? players[currentPlayerIndex].symbol
       : '';
   };
 
   const makeMove = (position) => {
+    if (!gameStarted) {
+      console.log('Game has not started yet');
+      return;
+    }
+    const currentPlayerSymbol = getPlayerSymbol();
+    console.log('Player symbol', currentPlayerSymbol);
     if (
       position >= 0 &&
       position < 9 &&
       createGameboard.gameboard[position] === ''
     ) {
-      createGameboard.gameboard[position] = getPlayerSymbol();
+      createGameboard.gameboard[position] = currentPlayerSymbol;
       switchPlayer();
-      createGameboard.displayGameboard();
-      gameboardArray = [...createGameboard.gameboard];
-      displayController.renderGameboard(gameboardArray, containerId);
+      displayController.renderGameboard(createGameboard.gameboard);
 
-      if (createGameboard.checkWinner(getPlayerSymbol())) {
+      if (createGameboard.checkWinner(currentPlayerSymbol)) {
+        console.log(`Player ${currentPlayerSymbol}`);
         document.getElementById(
           'results'
-        ).innerText = `Player ${getPlayerSymbol()} wins`;
+        ).innerText = `Player ${currentPlayerSymbol} wins`;
         createGameboard.resetGameboard();
       } else if (createGameboard.isBoardFull()) {
         document.getElementById('results').innerText = 'It is a tie';
+        console.log('it is a tie');
         createGameboard.resetGameboard();
       }
     } else {
@@ -125,18 +144,18 @@ const gameFlow = (() => {
 })();
 
 const displayController = {
-  renderGameboard: function (conatinerId) {
+  renderGameboard: function (gameboard) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
 
-    gameboardArray.forEach((cellValue, index) => {
+    gameboard.forEach((cellValue, index) => {
       const cell = document.createElement('div');
       cell.classList.add('cell');
       cell.textContent = cellValue;
       container.appendChild(cell);
 
       cell.addEventListener('click', () => {
-        if (gameboardArray[index] === '') {
+        if (gameboard[index] === '') {
           gameFlow.makeMove(index);
         } else {
           console.log('cell already occupied');
@@ -146,7 +165,6 @@ const displayController = {
   },
 };
 
-let gameboardArray = ['', '', '', '', '', '', '', '', ''];
 const containerId = 'gameboardContainer';
 
-displayController.renderGameboard(gameboardArray, containerId);
+displayController.renderGameboard(createGameboard.gameboard, containerId);
