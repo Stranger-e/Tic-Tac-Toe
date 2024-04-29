@@ -168,6 +168,7 @@ const resetGameboard = () => {
 
   document.getElementById('player1').value = '';
   document.getElementById('player2').value = '';
+  document.getElementById('results').innerText = '';
 };
 
 const containerId = 'gameboardContainer';
